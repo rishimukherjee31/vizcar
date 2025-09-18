@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Video Streaming</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        nav {
+            background: #333;
+            padding: 15px 20px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            background: #555;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .card a {
+            display: inline-block;
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .card a:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="esp32.html">ESP32 Stream</a></li>
+            <li><a href="path-planning.html">Path Planning</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1>Video Streaming Dashboard</h1>
+        <p>Welcome to the video streaming control center. Select a stream to view:</p>
+        
+        <div class="cards">
+            <div class="card">
+                <h2>ESP32 Camera</h2>
+                <p>View the live video stream from the ESP32 camera module. Vertical orientation optimized for mobile camera view.</p>
+                <a href="esp32.html">View Stream →</a>
+            </div>
+            
+            <div class="card">
+                <h2>Path Planning</h2>
+                <p>Monitor the path planning system with live video feed. Landscape orientation for wider field of view.</p>
+                <a href="path-planning.html">View Stream →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
