@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path Planning Stream</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        nav {
+            background: #333;
+            padding: 15px 20px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            background: #555;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .video-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 20px auto;
+        }
+        
+        /* Landscape video frame */
+        #stream {
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+            aspect-ratio: 16/9;  /* Landscape aspect ratio */
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            background: #000;
+            object-fit: cover;
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 14px;
+            max-width: 900px;
+            margin: 15px auto 0;
+        }
+        
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #555;
+        }
+        
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="esp32.html">ESP32 Stream</a></li>
+            <li><a href="path-planning.html" class="active">Path Planning</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1>Path Planning Video Stream</h1>
+        
+        <div class="video-container">
+            <!-- Replace YOUR_PATH_PLANNING_IP with actual IP/URL -->
+            <img id="stream" src="http://YOUR_PATH_PLANNING_IP/stream" alt="Path planning video stream">
+            
+            <div class="status disconnected" id="status">
+                Connecting to stream...
+            </div>
+            
+            <div class="controls">
+                <button id="refreshBtn">Refresh Stream</button>
+                <button id="fullscreenBtn">Fullscreen</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const streamImg = document.getElementById('stream');
+        const status = document.getElementById('status');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        
+        // Update with your path planning stream IP/URL
+        const STREAM_IP = 'YOUR_PATH_PLANNING_IP';
+        const STREAM_URL = `http://${STREAM_IP}/stream`;
+        
+        streamImg.src = STREAM_URL;
+        
+        streamImg.onload = function() {
+            status.textContent = 'Stream connected';
+            status.className = 'status connected';
+        };
+        
+        streamImg.onerror = function() {
+            status.textContent = 'Stream disconnected - Retrying...';
+            status.className = 'status disconnected';
+            
+            // Retry after 5 seconds
+            setTimeout(() => {
+                streamImg.src = STREAM_URL + '?t=' + new Date().getTime();
+            }, 5000);
+        };
+        
+        refreshBtn.onclick = function() {
+            streamImg.src = STREAM_URL + '?t=' + new Date().getTime();
+            status.textContent = 'Refreshing stream...';
+            status.className = 'status disconnected';
+        };
+        
+        fullscreenBtn.onclick = function() {
+            if (streamImg.requestFullscreen) {
+                streamImg.requestFullscreen();
+            } else if (streamImg.webkitRequestFullscreen) {
+                streamImg.webkitRequestFullscreen();
+            } else if (streamImg.msRequestFullscreen) {
+                streamImg.msRequestFullscreen();
+            }
+        };
+    </script>
+</body>
+</html>
