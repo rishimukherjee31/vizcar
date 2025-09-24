@@ -24,7 +24,7 @@ class VideoStreamClient:
         try:
             response = requests.get(f"{self.server_url}/status", timeout=5)
             if response.status_code == 200:
-                print(f"✅ Connected to server: {self.server_url}")
+                print(f"Connected to server: {self.server_url}")
                 return True
         except Exception as e:
             print(f"❌ Failed to connect to server: {e}")
@@ -51,23 +51,19 @@ class VideoStreamClient:
                     
                 bytes_data += chunk
                 
-                # Look for MJPEG frame boundaries
                 start = bytes_data.find(b'\xff\xd8')  # JPEG start
                 end = bytes_data.find(b'\xff\xd9')    # JPEG end
                 
                 if start != -1 and end != -1 and start < end:
-                    # Extract frame
                     jpg_data = bytes_data[start:end + 2]
                     bytes_data = bytes_data[end + 2:]
                     
-                    # Decode frame
                     frame = cv2.imdecode(
                         np.frombuffer(jpg_data, dtype=np.uint8), 
                         cv2.IMREAD_COLOR
                     )
                     
                     if frame is not None:
-                        # Add frame to queue (drop old frames if queue is full)
                         try:
                             self.frame_queue.put(frame, block=False)
                         except queue.Full:
@@ -90,13 +86,11 @@ class VideoStreamClient:
         self.stream_thread.daemon = True
         self.stream_thread.start()
         
-        print("🎥 Starting video display...")
+        print("Starting video display...")
         print("Press 'q' to quit, 's' to save screenshot")
         
-        # Display frames
         while self.running:
             try:
-                # Get frame with timeout
                 frame = self.frame_queue.get(timeout=1)
                 
                 # Add overlay with info
@@ -110,10 +104,8 @@ class VideoStreamClient:
                     2
                 )
                 
-                # Show frame
                 cv2.imshow('Pi Camera Feed', frame)
                 
-                # Handle key presses
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord('q'):
                     break
@@ -133,7 +125,7 @@ class VideoStreamClient:
     
     def stop(self):
         """Stop streaming and cleanup"""
-        print("\n🛑 Stopping video stream...")
+        print("\nStopping video stream...")
         self.running = False
         
         if self.stream_thread and self.stream_thread.is_alive():
