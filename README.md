@@ -8,7 +8,7 @@ The vizcar system consists of three main components:
 - **Robot Control System**: Processes visual data for autonomous navigation (coming soon)
 
 ## System Requirements
-- Raspberry Pi 5 (recommended) with Ubuntu latest LTS
+- Raspberry Pi 5 (required) with Ubuntu latest LTS
 - Logitech C920 HD Pro Webcam or compatible USB camera
 - macOS device for client-side applications (M1/Intel Mac)
 - Tailscale VPN for secure device communication
