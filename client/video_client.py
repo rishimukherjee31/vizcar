@@ -27,7 +27,7 @@ class VideoStreamClient:
                 print(f"Connected to server: {self.server_url}")
                 return True
         except Exception as e:
-            print(f"❌ Failed to connect to server: {e}")
+            print(f"Failed to connect to server: {e}")
             return False
     
     def fetch_frames(self):
@@ -150,14 +150,14 @@ def main():
     
     server_url = f"http://{args.server_ip}:{args.port}"
     
-    print(f"🔗 Connecting to Pi camera at: {server_url}")
+    print(f"Connecting to Pi camera at: {server_url}")
     
     client = VideoStreamClient(server_url)
     
     try:
         client.start_streaming()
     except KeyboardInterrupt:
-        print("\n👋 Goodbye!")
+        print("\nGoodbye!")
     finally:
         client.stop()
 
