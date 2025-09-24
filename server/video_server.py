@@ -10,7 +10,6 @@ import threading
 import time
 import logging
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -38,11 +37,11 @@ class VideoCamera:
         
         for device in glob.glob('/dev/video*'):
             try:
-                # Test if device is accessible
+                # test if device is accessible
                 if os.access(device, os.R_OK):
                     devices.append(device)
                     
-                    # Check if it's a capture device using v4l2-ctl
+                    # check if it's a capture device using v4l2-ctl
                     try:
                         result = subprocess.run([
                             'v4l2-ctl', '--device', device, '--info'
@@ -65,18 +64,16 @@ class VideoCamera:
         return capture_devices if capture_devices else devices
     
     def initialize_camera(self):
-        """Initialize camera with optimal settings for Logitech C920"""
-        # For C920, typically video0 is capture, video1 is metadata
-        # But let's try both to be sure
-        devices_to_try = [0, 1]  # Start with the C920 devices
-        
-        logger.info(f"Initializing Logitech C920 camera...")
+        """Initialize camera """
+        # For C920, typically video0 is capture and video1 is metadata
+        devices_to_try = [0, 1]
+        logger.info(f"Initializing camera...")
         
         for idx in devices_to_try:
             try:
                 logger.info(f"Trying camera index {idx} (/dev/video{idx})...")
                 
-                # Try V4L2 backend first (best for USB cameras)
+                # v4l2 backend first for USB cameras)
                 self.video = cv2.VideoCapture(idx, cv2.CAP_V4L2)
                 
                 if not self.video.isOpened():
@@ -84,49 +81,41 @@ class VideoCamera:
                     if self.video:
                         self.video.release()
                     
-                    # Fallback to default backend
                     self.video = cv2.VideoCapture(idx)
                     if not self.video.isOpened():
                         logger.warning(f"Camera {idx} not opened with any backend")
                         continue
                 
                 # C920-specific settings
-                # Set MJPEG codec first (C920's native format)
                 self.video.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))
                 
-                # Set resolution (C920 supports multiple resolutions)
+                # resolution 
                 self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
                 self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
                 self.video.set(cv2.CAP_PROP_FPS, 30)
-                
-                # Optimize for streaming
                 self.video.set(cv2.CAP_PROP_BUFFERSIZE, 1)
                 
-                # Additional C920 optimizations
                 self.video.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)  # Manual exposure mode
-                self.video.set(cv2.CAP_PROP_AUTOFOCUS, 1)      # Enable autofocus
+                self.video.set(cv2.CAP_PROP_AUTOFOCUS, 1)      # autofocus
                 
-                # Give camera time to initialize and adjust
                 import time
                 time.sleep(3)
                 
-                # Clear any buffered frames and test
                 for warm_up in range(5):
                     ret, _ = self.video.read()
                     if not ret:
                         time.sleep(0.5)
                         continue
                 
-                # Now test for a good frame
+                # test for a good frame
                 ret, test_frame = self.video.read()
                 if ret and test_frame is not None and test_frame.size > 0:
                     self.camera_index = idx
                     height, width = test_frame.shape[:2]
-                    logger.info(f"✅ C920 camera initialized successfully at index {idx}")
-                    logger.info(f"📐 Frame size: {width}x{height}")
-                    logger.info(f"🎥 FPS: {self.video.get(cv2.CAP_PROP_FPS)}")
+                    logger.info(f"Camera initialized successfully at index {idx}")
+                    logger.info(f"Frame size: {width}x{height}")
+                    logger.info(f"FPS: {self.video.get(cv2.CAP_PROP_FPS)}")
                     
-                    # Check actual codec being used
                     fourcc = self.video.get(cv2.CAP_PROP_FOURCC)
                     codec = "".join([chr((int(fourcc) >> 8 * i) & 0xFF) for i in range(4)])
                     logger.info(f"📹 Codec: {codec}")
@@ -142,8 +131,8 @@ class VideoCamera:
                     self.video.release()
                 continue
         
-        # If C920 devices failed, try other indices
-        logger.warning("C920 devices failed, trying other indices...")
+        # If devices 0,1 fail, try other indices
+        logger.warning("trying other indices...")
         other_devices = [2, 4, 6, 8]
         
         for idx in other_devices:
@@ -170,9 +159,9 @@ class VideoCamera:
                 logger.error(f"Error with camera {idx}: {e}")
                 continue
         
-        logger.error("❌ Failed to initialize C920 camera")
-        logger.error("💡 Try running: fswebcam -d /dev/video0 test.jpg")
-        logger.error("💡 Or check: v4l2-ctl --device=/dev/video0 --list-formats-ext")
+        logger.error("Failed to initialize camera")
+        logger.error("Try running: fswebcam -d /dev/video0 test.jpg")
+        logger.error("Or check: v4l2-ctl --device=/dev/video0 --list-formats-ext")
         return False
     
     def start_capture(self):
@@ -224,7 +213,7 @@ def generate_mjpeg_stream():
     while True:
         frame = camera.get_frame()
         if frame is not None:
-            # Encode frame as JPEG
+            # encode as JPEG
             ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
             if ret:
                 frame_bytes = buffer.tobytes()
