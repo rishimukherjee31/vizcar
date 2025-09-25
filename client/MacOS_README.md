@@ -17,7 +17,7 @@ This client application connects to the Raspberry Pi video server over Tailscale
 - macOS 10.14+ (Mojave or later)
 - Python 3.8+ with pip
 - Stable network connection
-- Tailscale VPN (recommended)
+- Tailscale VPN (required)
 
 ## Installation
 Install Homebrew (if not already installed):
