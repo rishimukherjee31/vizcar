@@ -133,9 +133,4 @@ This project uses a modular architecture allowing for easy extension:
 ## License
 MIT License - see LICENSE file for details
 
-## Roadmap
-- [ ] Robot chassis integration
-- [ ] Computer vision processing pipeline
-- [ ] Autonomous navigation algorithms
-- [ ] Mobile app for remote control
-- [ ] Multi-camera support
+
