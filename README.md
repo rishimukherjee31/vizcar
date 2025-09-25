@@ -1,5 +1,5 @@
 # vizcar
-This repository contains the materials for creating a modular vision-based piloting system for wheeled robots.
+
 
 ## Overview
 The vizcar system consists of three main components:
