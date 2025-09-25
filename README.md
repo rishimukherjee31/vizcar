@@ -1,6 +1,6 @@
 # vizcar
 <div align="center">
-  <img src="./videos/baseline.mp4" alt="ROV Animation" width="1005"/>
+  <img src="./video/baseline.mp4" alt="Baseline Car Teleop" width="1005"/>
   <p><em>Baseline Method</em></p>
 </div>
 
