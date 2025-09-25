@@ -1,8 +1,10 @@
 # vizcar
-<div align="center">
-  <img src="./video/baseline.mp4" alt="Baseline Car Teleop" width="1005"/>
-  <p><em>Baseline Method</em></p>
-</div>
+[./video/baseline.mp4](https://github.com/user-attachments/assets/a0b385c3-4cb0-4201-a864-ad12884572af)
+
+<p align="center"><em>Baseline method of using human input for motor commands.</em></p>
+
+
+
 
 ## Overview
 The vizcar system consists of three main components:
