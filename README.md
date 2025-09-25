@@ -1,5 +1,8 @@
 # vizcar
-
+<div align="center">
+  <img src="./videos/baseline.mp4" alt="ROV Animation" width="1005"/>
+  <p><em>Baseline Method</em></p>
+</div>
 
 ## Overview
 The vizcar system consists of three main components:
