@@ -11,6 +11,7 @@ import logging
 from collections import deque
 from datetime import datetime
 import json
+import torch
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -59,10 +60,10 @@ class YOLOPoseProcessor:
             self.model = YOLO(self.model_name)
             
             # Verify CUDA is available
-            import torch
+            
             if torch.cuda.is_available():
-                logger.info(f"✓ CUDA available - GPU: {torch.cuda.get_device_name(0)}")
-                logger.info(f"✓ CUDA version: {torch.version.cuda}")
+                logger.info(f"CUDA available - GPU: {torch.cuda.get_device_name(0)}")
+                logger.info(f"CUDA version: {torch.version.cuda}")
             else:
                 logger.warning("⚠ CUDA not available, using CPU (will be slow)")
             
