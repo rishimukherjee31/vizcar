@@ -416,7 +416,7 @@ def main():
     
     try:
         logger.info("="*60)
-        logger.info("YOLO Pose Detection Server - Custom Car Model")
+        logger.info("YOLO Pose Detection Server - ESP32 Car Model")
         logger.info("="*60)
         logger.info(f"Source: {args.source}")
         logger.info(f"Model: {args.model}")
@@ -434,7 +434,7 @@ def main():
             logger.error("Failed to start processor")
             return 1
         
-        logger.info("✓ Processor started successfully")
+        logger.info("Processor started successfully")
         logger.info("\nEndpoints:")
         logger.info(f"  - Annotated stream: http://{args.host}:{args.port}/video_feed")
         logger.info(f"  - Detections:       http://{args.host}:{args.port}/detections")
