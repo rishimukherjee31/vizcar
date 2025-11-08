@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+YOLO Pose Detection Server
+Consumes video stream from Raspberry Pi, runs pose detection on NVIDIA GPU,
+and serves both annotated video stream and detection results via HTTP API
+"""
 
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
@@ -11,7 +16,6 @@ import logging
 from collections import deque
 from datetime import datetime
 import json
-import torch
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,7 +24,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for cross-origin requests
 
 class YOLOPoseProcessor:
-    def __init__(self, source_url, model_name="best.pt"):
+    def __init__(self, source_url, model_name="yolo11n-pose.pt"):
         """
         Initialize YOLO pose processor
         
@@ -28,7 +32,8 @@ class YOLOPoseProcessor:
             source_url: URL of the video stream (e.g., http://pi-hostname:5000/video_feed)
             model_name: YOLO model to use (yolo11n-pose.pt, yolo11s-pose.pt, etc.)
         """
-        self.source_url = source_url
+        # Ensure the URL points to the video_feed endpoint
+        self.source_url = self._validate_source_url(source_url)
         self.model_name = model_name
         self.model = None
         
@@ -53,6 +58,37 @@ class YOLOPoseProcessor:
         self.total_inference_time = 0
         self.total_frames_processed = 0
         
+    def _validate_source_url(self, url):
+        """
+        Validate and correct the source URL to ensure it points to video_feed endpoint
+        """
+        import requests
+        from urllib.parse import urlparse, urljoin
+        
+        # If URL already ends with /video_feed, use it as-is
+        if url.endswith('/video_feed'):
+            logger.info(f"Using source URL: {url}")
+            return url
+        
+        # If URL is just the base (e.g., http://ip:5000), append /video_feed
+        parsed = urlparse(url)
+        base_url = f"{parsed.scheme}://{parsed.netloc}"
+        
+        # Try to verify the server is accessible
+        try:
+            logger.info(f"Checking video server at {base_url}...")
+            response = requests.get(base_url, timeout=5)
+            if response.status_code == 200:
+                logger.info(f"✓ Server is accessible")
+        except Exception as e:
+            logger.warning(f"Could not verify server accessibility: {e}")
+        
+        # Construct the video_feed URL
+        video_feed_url = urljoin(base_url + '/', 'video_feed')
+        logger.info(f"Using video feed URL: {video_feed_url}")
+        
+        return video_feed_url
+    
     def initialize_model(self):
         """Load YOLO model"""
         try:
@@ -60,10 +96,10 @@ class YOLOPoseProcessor:
             self.model = YOLO(self.model_name)
             
             # Verify CUDA is available
-            
+            import torch
             if torch.cuda.is_available():
-                logger.info(f"CUDA available - GPU: {torch.cuda.get_device_name(0)}")
-                logger.info(f"CUDA version: {torch.version.cuda}")
+                logger.info(f"✓ CUDA available - GPU: {torch.cuda.get_device_name(0)}")
+                logger.info(f"✓ CUDA version: {torch.version.cuda}")
             else:
                 logger.warning("⚠ CUDA not available, using CPU (will be slow)")
             
@@ -91,59 +127,86 @@ class YOLOPoseProcessor:
         """Main processing loop - runs YOLO on video stream"""
         logger.info("Processing thread started")
         
-        try:
-            # Run inference on the stream
-            # stream=True returns a generator for efficient processing
-            results_generator = self.model(
-                self.source_url,
-                stream=True,
-                verbose=False,
-                device=0  # Use GPU 0 (your 4070)
-            )
-            
-            for result in results_generator:
-                if not self.running:
-                    break
-                
-                start_time = time.time()
-                
-                # Get annotated frame with pose keypoints drawn
-                annotated_frame = result.plot()
-                
-                # Extract detection data
-                detection_data = self._extract_detections(result)
-                
-                # Update stored frame and results
-                with self.frame_lock:
-                    self.annotated_frame = annotated_frame.copy()
-                
-                with self.results_lock:
-                    self.latest_results = detection_data
-                    self.results_history.append({
-                        'timestamp': datetime.now().isoformat(),
-                        'detections': detection_data
-                    })
-                
-                # Update performance metrics
-                self.inference_time = time.time() - start_time
-                self.total_inference_time += self.inference_time
-                self.total_frames_processed += 1
-                
-                # Update FPS counter
-                self.frame_count += 1
-                if time.time() - self.last_fps_update >= 1.0:
-                    self.fps = self.frame_count
-                    self.frame_count = 0
-                    self.last_fps_update = time.time()
-                    
-                    avg_inference = self.total_inference_time / self.total_frames_processed
-                    logger.info(f"FPS: {self.fps} | Inference: {avg_inference*1000:.1f}ms")
+        max_retries = 3
+        retry_count = 0
         
-        except Exception as e:
-            logger.error(f"Error in processing stream: {e}")
-            logger.exception(e)
-        finally:
-            logger.info("Processing thread stopped")
+        while retry_count < max_retries and self.running:
+            try:
+                logger.info(f"Connecting to stream: {self.source_url}")
+                
+                # Run inference on the stream
+                # stream=True returns a generator for efficient processing
+                results_generator = self.model(
+                    self.source_url,
+                    stream=True,
+                    verbose=False,
+                    device=0  # Use GPU 0 (your 4070)
+                )
+                
+                # Reset retry count on successful connection
+                retry_count = 0
+                
+                for result in results_generator:
+                    if not self.running:
+                        break
+                    
+                    start_time = time.time()
+                    
+                    # Get annotated frame with pose keypoints drawn
+                    annotated_frame = result.plot()
+                    
+                    # Extract detection data
+                    detection_data = self._extract_detections(result)
+                    
+                    # Update stored frame and results
+                    with self.frame_lock:
+                        self.annotated_frame = annotated_frame.copy()
+                    
+                    with self.results_lock:
+                        self.latest_results = detection_data
+                        self.results_history.append({
+                            'timestamp': datetime.now().isoformat(),
+                            'detections': detection_data
+                        })
+                    
+                    # Update performance metrics
+                    self.inference_time = time.time() - start_time
+                    self.total_inference_time += self.inference_time
+                    self.total_frames_processed += 1
+                    
+                    # Update FPS counter
+                    self.frame_count += 1
+                    if time.time() - self.last_fps_update >= 1.0:
+                        self.fps = self.frame_count
+                        self.frame_count = 0
+                        self.last_fps_update = time.time()
+                        
+                        avg_inference = self.total_inference_time / self.total_frames_processed
+                        logger.info(f"FPS: {self.fps} | Inference: {avg_inference*1000:.1f}ms")
+            
+            except ConnectionError as e:
+                retry_count += 1
+                logger.error(f"Connection error (attempt {retry_count}/{max_retries}): {e}")
+                
+                if retry_count < max_retries:
+                    wait_time = retry_count * 2  # Exponential backoff: 2s, 4s, 6s
+                    logger.info(f"Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    logger.error("Max retries reached. Stopping processor.")
+                    logger.error("Please check:")
+                    logger.error(f"  1. Video server is running: curl {self.source_url}")
+                    logger.error("  2. Network connectivity between devices")
+                    logger.error("  3. Firewall settings allow connections")
+                    break
+                    
+            except Exception as e:
+                logger.error(f"Error in processing stream: {e}")
+                logger.exception(e)
+                break
+                
+        logger.info("Processing thread stopped")
+        self.running = False
     
     def _extract_detections(self, result):
         """
@@ -417,7 +480,7 @@ def main():
     
     try:
         logger.info("="*60)
-        logger.info("YOLO Pose Detection Server - ESP32 Car Model")
+        logger.info("YOLO Pose Detection Server - Custom Car Model")
         logger.info("="*60)
         logger.info(f"Source: {args.source}")
         logger.info(f"Model: {args.model}")
@@ -435,7 +498,7 @@ def main():
             logger.error("Failed to start processor")
             return 1
         
-        logger.info("Processor started successfully")
+        logger.info("✓ Processor started successfully")
         logger.info("\nEndpoints:")
         logger.info(f"  - Annotated stream: http://{args.host}:{args.port}/video_feed")
         logger.info(f"  - Detections:       http://{args.host}:{args.port}/detections")
