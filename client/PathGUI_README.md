@@ -81,7 +81,7 @@ PC (GUI) → MQTT → Raspberry Pi (Broker) → ESP32 robot
 
 The GUI only publishes MQTT messages. The robot must implement the path-following logic.
 
-## 🚀 How to Run the GUI
+## How to Run the GUI
 
 1. **Move into client folder**
 ```bash
@@ -95,7 +95,7 @@ python3 path_gui.py
 
 The GUI window will open.
 
-## 🛠️ Using the GUI
+## Using the GUI
 
 ### 1. Enter Video URL
 
@@ -175,7 +175,7 @@ robot/path
 * MQTT publishing
 * Tailscale-compatible
 
-## 🧪 Troubleshooting
+## Troubleshooting
 
 ### ❌ GUI shows: "Could not open video stream"
 
