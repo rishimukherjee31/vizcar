@@ -11,7 +11,7 @@ This GUI displays the live camera feed from a Raspberry Pi and allows you to cli
 
 ---
 
-## 📦 Dependencies
+## Dependencies
 
 The GUI requires the following Python packages on **your PC**:
 
@@ -31,7 +31,7 @@ pip install numpy opencv-python pillow paho-mqtt
 
 ---
 
-## 📡 Requirements on the Raspberry Pi
+## Requirements on the Raspberry Pi
 
 Raspberry Pi must be running:
 
@@ -53,7 +53,7 @@ Use the Pi's Tailscale IP instead, e.g.:
 http://100.101.214.30:5000/video_feed
 ```
 
-## 🤖 Requirements on the ESP32 Robot
+## Requirements on the ESP32 Robot
 
 The robot must subscribe to the topic:
 ```
@@ -74,7 +74,7 @@ and be able to interpret messages shaped like:
 
 The final point has `"heading": null` because the robot does not need a heading after arriving at the last point.
 
-## 🌐 Communication Architecture
+## Communication Architecture
 ```
 PC (GUI) → MQTT → Raspberry Pi (Broker) → ESP32 robot
 ```
