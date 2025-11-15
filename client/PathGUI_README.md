@@ -164,7 +164,7 @@ Robot receives via MQTT on:
 robot/path
 ```
 
-## 🔧 Features
+## Features
 
 * Live video feed
 * Click-to-add waypoints
