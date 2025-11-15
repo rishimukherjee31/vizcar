@@ -1,4 +1,4 @@
-[vizcar](./README.md) | [Client](./client/MacOS_README.md) | [Server](./server/RPI_README.md) 
+[vizcar](./README.md) | [Client](./client/MacOS_README.md) | [Server](./server/RPI_README.md) | [Path Gui](./client/PathGUI_README.md)
 
 
 # vizcar
