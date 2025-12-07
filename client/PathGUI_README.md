@@ -1,4 +1,4 @@
-# 🖥️ VizCar Path Planning GUI
+# VizCar Path Planning GUI
 A real-time path-planning interface for controlling an ESP32-CAM robot using:
 
 - Raspberry Pi video streaming  
@@ -177,7 +177,7 @@ robot/path
 
 ## Troubleshooting
 
-### ❌ GUI shows: "Could not open video stream"
+### GUI shows: "Could not open video stream"
 
 * Wrong URL
 * Pi video server not running
@@ -185,7 +185,7 @@ robot/path
 * Windows firewall blocking
 * OpenCV missing FFMPEG backend
 
-### ❌ MQTT "connection refused"
+### MQTT "connection refused"
 
 * Mosquitto not running
 * Wrong broker IP
