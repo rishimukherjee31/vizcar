@@ -63,9 +63,10 @@ robot/path
 and be able to interpret messages shaped like:
 ```json
 {
-  "method": "linear",
+  "method": "catmull",
   "path": [
     {"point": [305.0, 88.0], "heading": 0.23},
+    {"point": [340.0, 100.0], "heading": 0.20},
     {"point": [380.0, 140.0], "heading": null}
   ]
 }
