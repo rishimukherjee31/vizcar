@@ -62,6 +62,7 @@ robot/path
 
 and be able to interpret messages shaped like:
 ```json
+# Point Based Guidance Strategy
 {
   "method": "catmull",
   "path": [
