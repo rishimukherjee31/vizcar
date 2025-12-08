@@ -149,7 +149,7 @@ Defines path smoothness:
 
 Click **Publish** to send:
 ```json
-# Point Based Guidance Strategy
+## Point Based Guidance Strategy
 {
   "method": "linear",
   "path": [
