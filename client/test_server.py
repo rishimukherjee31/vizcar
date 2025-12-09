@@ -151,7 +151,7 @@ def go():
 
 @app.route('/back')
 def back():
-    robot.move_forward(-8)
+    robot.move_forward(8)
     return 'OK'
 
 @app.route('/left')
